@@ -1,0 +1,6 @@
+"TonUtil.fif" include
+
+<b
+    3 32 u, // op code
+    0 64 u, // query_id
+b>

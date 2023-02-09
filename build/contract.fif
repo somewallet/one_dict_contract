@@ -1,0 +1,443 @@
+"Asm.fif" include
+// automatically generated from `/home/some_wallet/.config/toncli/func-libs/error_codes.func` `/home/some_wallet/.config/toncli/func-libs/math.func` `/home/some_wallet/.config/toncli/func-libs/stdlib.func` `/home/some_wallet/dev/projects/one_dict_contract/func/code.func` incl:`/home/some_wallet/dev/projects/one_dict_contract/func/../lib/func/stdlib.fc` incl:`/home/some_wallet/dev/projects/one_dict_contract/func/../lib/func/utils.fc` incl:`/home/some_wallet/dev/projects/one_dict_contract/func/../lib/func/messages.fc` incl:`/home/some_wallet/dev/projects/one_dict_contract/func/constants.fc` 
+PROGRAM{
+  DECLPROC power
+  DECLPROC sqrt
+  DECLPROC avg
+  DECLPROC exp
+  DECLPROC log2
+  DECLPROC utils::get_contract_address
+  DECLPROC utils::to_ton
+  DECLPROC utils::from_ton
+  DECLPROC utils::get_workchain
+  DECLPROC utils::force_chain
+  DECLPROC utils::get_query_id
+  DECLPROC utils::get_serialized_address
+  DECLPROC messages::send_empty
+  DECLPROC messages::send_simple
+  DECLPROC messages::send_nobounce
+  DECLPROC messages::send_with_stateinit
+  DECLPROC load_data
+  DECLPROC save_data
+  DECLPROC calculate_dict_size
+  DECLPROC balance
+  DECLPROC get_dictionary_values_num
+  DECLPROC recv_internal
+  83288 DECLMETHOD get_dict
+  110408 DECLMETHOD get_value_from_dict
+  power PROCREF:<{
+    //  x exponent
+    OVER	//  x exponent x
+    0 EQINT	//  x exponent _3
+    IFJMP:<{	//  x exponent
+      2DROP	// 
+      0 PUSHINT	//  _4=0
+    }>	//  x exponent
+    DUP	//  x exponent exponent
+    0 EQINT	//  x exponent _6
+    IFJMP:<{	//  x exponent
+      2DROP	// 
+      1 PUSHINT	//  _7=1
+    }>	//  x exponent
+    OVER	//  x counter result
+    WHILE:<{
+      OVER	//  x counter result counter
+      1 GTINT	//  x counter result _11
+    }>DO<{	//  x counter result
+      s2 PUSH	//  x counter result x
+      MUL	//  x counter result
+      SWAP	//  x result counter
+      DEC	//  x result counter
+      SWAP	//  x counter result
+    }>	//  x counter result
+    2 1 BLKDROP2	//  result
+  }>
+  sqrt PROCREF:<{
+    //  x
+    DUP	//  x x
+    0 EQINT	//  x _2
+    IFJMP:<{	//  x
+      DROP	// 
+      0 PUSHINT	//  _3=0
+    }>	//  x
+    DUP	//  x x
+    4 LESSINT	//  x _5
+    IFJMP:<{	//  x
+      DROP	// 
+      1 PUSHINT	//  _6=1
+    }>	//  x
+    DUP	//  x x
+    INC	//  x _9
+    1 RSHIFT#	//  x z
+    OVER	//  x z y
+    WHILE:<{
+      2DUP	//  x z y z y
+      LESS	//  x z y _13
+    }>DO<{	//  x z y
+      DROP	//  x z
+      s0 s1 s0 PUSH3	//  x z y x z
+      DIV	//  x z y _14
+      ROT	//  x y _14 z
+      ADD	//  x y _15
+      1 RSHIFT#	//  x y z
+      SWAP	//  x z y
+    }>	//  x z y
+    2 1 BLKDROP2	//  y
+  }>
+  avg PROCREF:<{
+    //  x y
+    ADD	//  _2
+    1 RSHIFT#	//  _4
+  }>
+  exp PROCREF:<{
+    //  x
+    DUP	//  x x
+    -1 GTINT	//  x _2
+    IF:<{	//  x
+      POW2	//  _3
+    }>ELSE<{	//  x
+      1 PUSHINT	//  x _6=1
+      SWAP	//  _6=1 x
+      NEGATE	//  _6=1 _8
+      RSHIFT	//  _3
+    }>
+  }>
+  log2 PROCREF:<{
+    //  x
+    0 PUSHINT	//  x n=0
+    7 PUSHPOW2	//  x n=0 _3=128
+    exp INLINECALLDICT	//  x n=0 _4
+    s2 s(-1) PUXC	//  x n=0 x _4
+    GEQ	//  x n=0 _5
+    IF:<{	//  x n=0
+      DROP	//  x
+      128 RSHIFT#	//  x
+      7 PUSHPOW2	//  x n
+    }>	//  x n
+    64 PUSHINT	//  x n _10=64
+    exp INLINECALLDICT	//  x n _11
+    s2 s(-1) PUXC	//  x n x _11
+    GEQ	//  x n _12
+    IF:<{	//  x n
+      SWAP	//  n x
+      64 RSHIFT#	//  n x
+      SWAP	//  x n
+      64 ADDCONST	//  x n
+    }>	//  x n
+    32 PUSHINT	//  x n _17=32
+    exp INLINECALLDICT	//  x n _18
+    s2 s(-1) PUXC	//  x n x _18
+    GEQ	//  x n _19
+    IF:<{	//  x n
+      SWAP	//  n x
+      32 RSHIFT#	//  n x
+      SWAP	//  x n
+      32 ADDCONST	//  x n
+    }>	//  x n
+    16 PUSHINT	//  x n _24=16
+    exp INLINECALLDICT	//  x n _25
+    s2 s(-1) PUXC	//  x n x _25
+    GEQ	//  x n _26
+    IF:<{	//  x n
+      SWAP	//  n x
+      16 RSHIFT#	//  n x
+      SWAP	//  x n
+      16 ADDCONST	//  x n
+    }>	//  x n
+    8 PUSHINT	//  x n _31=8
+    exp INLINECALLDICT	//  x n _32
+    s2 s(-1) PUXC	//  x n x _32
+    GEQ	//  x n _33
+    IF:<{	//  x n
+      SWAP	//  n x
+      8 RSHIFT#	//  n x
+      SWAP	//  x n
+      8 ADDCONST	//  x n
+    }>	//  x n
+    4 PUSHINT	//  x n _38=4
+    exp INLINECALLDICT	//  x n _39
+    s2 s(-1) PUXC	//  x n x _39
+    GEQ	//  x n _40
+    IF:<{	//  x n
+      SWAP	//  n x
+      4 RSHIFT#	//  n x
+      SWAP	//  x n
+      4 ADDCONST	//  x n
+    }>	//  x n
+    2 PUSHINT	//  x n _45=2
+    exp INLINECALLDICT	//  x n _46
+    s2 s(-1) PUXC	//  x n x _46
+    GEQ	//  x n _47
+    IF:<{	//  x n
+      SWAP	//  n x
+      2 RSHIFT#	//  n x
+      SWAP	//  x n
+      2 ADDCONST	//  x n
+    }>	//  x n
+    1 PUSHINT	//  x n _52=1
+    exp INLINECALLDICT	//  x n _53
+    s1 s2 XCHG	//  n x _53
+    GEQ	//  n _54
+    IF:<{	//  n
+      INC	//  n
+    }>	//  n
+  }>
+  utils::get_contract_address PROCINLINE:<{
+    //  workchain state_init
+    HASHCU	//  workchain _2
+    4 PUSHINT	//  workchain _2 _3=4
+    NEWC	//  workchain _2 _3=4 _4
+    3 STU	//  workchain _2 _6
+    s1 s2 XCHG	//  _2 workchain _6
+    8 STI	//  _2 _8
+    256 STU	//  _10
+    ENDC	//  _11
+    CTOS	//  _12
+  }>
+  utils::to_ton PROCINLINE:<{
+    //  amount
+    1000000000 PUSHINT	//  amount _1=1000000000
+    MUL	//  _2
+  }>
+  utils::from_ton PROCINLINE:<{
+    //  amount
+    1000000000 PUSHINT	//  amount _1=1000000000
+    DIV	//  _2
+  }>
+  utils::get_workchain PROCINLINE:<{
+    //  address
+    REWRITEVARADDR	//  _4 _5
+    DROP	//  wc
+  }>
+  utils::force_chain PROCINLINE:<{
+    //  workchain address error_code
+    SWAP	//  workchain error_code address
+    utils::get_workchain INLINECALLDICT	//  workchain error_code wc
+    ROT	//  error_code wc workchain
+    EQUAL	//  error_code _5
+    THROWANYIFNOT
+  }>
+  utils::get_query_id PROCINLINE:<{
+    // 
+    NOW	//  _0
+    LTIME	//  _0 _1
+    32 PUSHPOW2	//  _0 _1 _2=4294967296
+    MOD	//  _0 _3
+    ADD	//  _4
+  }>
+  utils::get_serialized_address PROCINLINE:<{
+    //  workchain address
+    0 PUSHINT	//  workchain address _2=0
+    2 PUSHINT	//  workchain address _2=0 _3=2
+    NEWC	//  workchain address _2=0 _3=2 _4
+    2 STU	//  workchain address _2=0 _6
+    1 STU	//  workchain address _8
+    s1 s2 XCHG	//  address workchain _8
+    8 STU	//  address _10
+    256 STU	//  _12
+    ENDC	//  _13
+    CTOS	//  _14
+  }>
+  messages::send_empty PROCREF:<{
+    //  amount to mode
+    0 PUSHINT	//  amount to mode _4=0
+    24 PUSHINT	//  amount to mode _4=0 _5=24
+    NEWC	//  amount to mode _4=0 _5=24 _6
+    6 STU	//  amount to mode _4=0 _8
+    s0 s3 XCHG2	//  amount _4=0 mode _8 to
+    STSLICER	//  amount _4=0 mode _9
+    s0 s3 XCHG2	//  mode _4=0 _9 amount
+    STVARUINT16	//  mode _4=0 _10
+    107 STU	//  mode _12
+    ENDC	//  mode msg
+    SWAP	//  msg mode
+    SENDRAWMSG
+  }>
+  messages::send_simple PROCREF:<{
+    //  amount to body mode
+    1 PUSHINT	//  amount to body mode _5=1
+    24 PUSHINT	//  amount to body mode _5=1 _6=24
+    NEWC	//  amount to body mode _5=1 _6=24 _7
+    6 STU	//  amount to body mode _5=1 _9
+    s0 s4 XCHG2	//  amount _5=1 body mode _9 to
+    STSLICER	//  amount _5=1 body mode _10
+    s0 s4 XCHG2	//  mode _5=1 body _10 amount
+    STVARUINT16	//  mode _5=1 body _11
+    s1 s2 XCHG	//  mode body _5=1 _11
+    107 STU	//  mode body _13
+    STREF	//  mode _14
+    ENDC	//  mode msg
+    SWAP	//  msg mode
+    SENDRAWMSG
+  }>
+  messages::send_nobounce PROCREF:<{
+    //  amount to body mode
+    1 PUSHINT	//  amount to body mode _5=1
+    16 PUSHINT	//  amount to body mode _5=1 _6=16
+    NEWC	//  amount to body mode _5=1 _6=16 _7
+    6 STU	//  amount to body mode _5=1 _9
+    s0 s4 XCHG2	//  amount _5=1 body mode _9 to
+    STSLICER	//  amount _5=1 body mode _10
+    s0 s4 XCHG2	//  mode _5=1 body _10 amount
+    STVARUINT16	//  mode _5=1 body _11
+    s1 s2 XCHG	//  mode body _5=1 _11
+    107 STU	//  mode body _13
+    STREF	//  mode _14
+    ENDC	//  mode msg
+    SWAP	//  msg mode
+    SENDRAWMSG
+  }>
+  messages::send_with_stateinit PROCREF:<{
+    //  amount to state_init body mode
+    7 PUSHINT	//  amount to state_init body mode _6=7
+    24 PUSHINT	//  amount to state_init body mode _6=7 _7=24
+    NEWC	//  amount to state_init body mode _6=7 _7=24 _8
+    6 STU	//  amount to state_init body mode _6=7 _10
+    s0 s5 XCHG2	//  amount _6=7 state_init body mode _10 to
+    STSLICER	//  amount _6=7 state_init body mode _11
+    s0 s5 XCHG2	//  mode _6=7 state_init body _11 amount
+    STVARUINT16	//  mode _6=7 state_init body _12
+    s1 s3 XCHG	//  mode body state_init _6=7 _12
+    108 STU	//  mode body state_init _14
+    STREF	//  mode body _15
+    STREF	//  mode _16
+    ENDC	//  mode msg
+    SWAP	//  msg mode
+    SENDRAWMSG
+  }>
+  load_data PROCINLINE:<{
+    // 
+    c4 PUSH	//  _1
+    CTOS	//  ds
+    LDDICT	//  _6 _5
+    DROP	//  _3
+  }>
+  save_data PROCINLINE:<{
+    //  dict
+    NEWC	//  dict _1
+    STDICT	//  _2
+    ENDC	//  _3
+    c4 POP
+  }>
+  calculate_dict_size PROCINLINE:<{
+    // 
+    0 PUSHINT	//  size=0
+    load_data INLINECALLDICT	//  size=0 withdrawals_dict
+    DUP
+    64 PUSHINT	//  size=0 withdrawals_dict withdrawals_dict _7=64
+    DICTUMIN
+    NULLSWAPIFNOT2	//  size=0 withdrawals_dict _15 _14 _16
+    s2 POP	//  size=0 withdrawals_dict flag key
+    WHILE:<{
+      SWAP	//  size withdrawals_dict key flag
+    }>DO<{	//  size withdrawals_dict key
+      s0 s2 XCHG	//  key withdrawals_dict size
+      INC	//  key withdrawals_dict size
+      s2 s1 PUSH2
+      64 PUSHINT	//  key withdrawals_dict size key withdrawals_dict _12=64
+      DICTUGETREF	//  key withdrawals_dict size _17 _18
+      NIP	//  key withdrawals_dict size flag
+      s0 s3 XCHG2	//  size withdrawals_dict flag key
+    }>	//  size withdrawals_dict key
+    2DROP	//  size
+  }>
+  balance PROCINLINE:<{
+    // 
+    BALANCE	//  _2
+    UNPAIR	//  _4 _5
+    DROP	//  balance
+  }>
+  get_dictionary_values_num PROCINLINE:<{
+    // 
+    calculate_dict_size INLINECALLDICT	//  _0
+  }>
+  recv_internal PROC:<{
+    //  msg_value in_msg_full in_msg_body
+    s2 POP	//  in_msg_body in_msg_full
+    CTOS	//  in_msg_body cs
+    4 LDU	//  in_msg_body _73 _72
+    DROP	//  in_msg_body flags
+    1 PUSHINT	//  in_msg_body flags _9=1
+    AND	//  in_msg_body _10
+    IFJMP:<{	//  in_msg_body
+      DROP	// 
+    }>	//  in_msg_body
+    32 LDU	//  op in_msg_body
+    64 LDU	//  op _77 _76
+    NIP	//  op in_msg_body
+    OVER	//  op in_msg_body op
+    1 EQINT	//  op in_msg_body _20
+    IFJMP:<{	//  op in_msg_body
+      NIP	//  in_msg_body
+      LDDICT	//  _79 _78
+      DROP	//  dict
+      save_data INLINECALLDICT
+    }>	//  op in_msg_body
+    OVER	//  op in_msg_body op
+    2 EQINT	//  op in_msg_body _26
+    IFJMP:<{	//  op in_msg_body
+      NIP	//  in_msg_body
+      64 LDU	//  _81 _80
+      DROP	//  key
+      load_data INLINECALLDICT	//  key d
+      64 PUSHINT	//  key d _35=64
+      DICTIGET
+      NULLSWAPIFNOT	//  _82 _83
+      DROP	//  v
+      LDMSGADDR	//  addr v
+      64 LDU	//  addr _87 _86
+      DROP	//  addr amount
+      SWAP
+      0 PUSHINT	//  amount addr _44=0
+      messages::send_empty INLINECALLDICT
+    }>	//  op in_msg_body
+    DROP	//  op
+    3 EQINT	//  _47
+    IFJMP:<{	// 
+      load_data INLINECALLDICT	//  d
+      DUP
+      64 PUSHINT	//  d d _57=64
+      DICTIMIN
+      NULLSWAPIFNOT2	//  d _91 _90 _92
+      s2 POP	//  d f k
+      WHILE:<{
+        SWAP	//  d k f
+      }>DO<{	//  d k
+        s0 s1 PUSH2
+        64 PUSHINT	//  d k k d _59=64
+        DICTIGET
+        NULLSWAPIFNOT	//  d k v f
+        SWAP	//  d k f v
+        LDMSGADDR	//  d k f addr v
+        64 LDU	//  d k f addr _98 _97
+        DROP	//  d k f addr amount
+        SWAP
+        0 PUSHINT	//  d k f amount addr _68=0
+        messages::send_empty INLINECALLDICT
+        SWAP	//  d f k
+      }>	//  d k
+      2DROP	// 
+    }>	// 
+    101 THROW
+  }>
+  get_dict PROC:<{
+    // 
+    load_data INLINECALLDICT	//  _0
+  }>
+  get_value_from_dict PROC:<{
+    //  idx
+    load_data INLINECALLDICT	//  idx d
+    s1 s(-1) PUXC
+    64 PUSHINT	//  idx idx d _5=64
+    DICTIGET
+    NULLSWAPIFNOT	//  idx value f
+    SWAP	//  idx f value
+    LDMSGADDR	//  idx f _7 value
+    SWAP	//  idx f value _7
+    REWRITESTDADDR	//  idx f value _17 _18
+    s0 s2 XCHG	//  idx f _18 _17 value
+    64 LDU	//  idx f _18 _17 _20 _19
+    DROP	//  idx f _18 _17 _10
+    s0 s3 XCHG2	//  idx _17 _18 _10 f
+  }>
+}END>c

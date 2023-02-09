@@ -1,0 +1,126 @@
+#pragma version >=0.4.0;
+#include "../lib/func/stdlib.fc";
+#include "../lib/func/utils.fc";
+#include "../lib/func/messages.fc";
+#include "constants.fc";
+
+;; Storage
+;;
+;; 
+
+const int default_dict_key_len = 64;
+
+cell load_data() inline {
+    var ds = get_data().begin_parse();
+    return ds~load_dict();
+}
+
+() save_data(cell dict) impure inline {
+    set_data(begin_cell().store_dict(dict).end_cell());
+}
+
+int calculate_dict_size() inline {
+    int size = 0;
+    cell withdrawals_dict = load_data();
+    (int key, _, int flag) = udict_get_min?(withdrawals_dict, default_dict_key_len);
+    while (flag) {
+        size += 1;
+        (_, flag) = udict_get_ref?(withdrawals_dict, default_dict_key_len, key);
+    }
+    return size;
+}
+
+int balance() inline {
+    var [balance, _] = get_balance();
+    return balance;
+}
+
+int get_dictionary_values_num() inline {
+    return calculate_dict_size();
+}
+
+() recv_internal(int msg_value, cell in_msg_full, slice in_msg_body) impure {
+    slice cs = in_msg_full.begin_parse();
+
+    int flags = cs~load_uint(4);
+    if (flags & 1) { 
+        return (); 
+    }
+
+    int op = in_msg_body~load_uint(32);
+    int query_id = in_msg_body~load_uint(64);
+
+    if(op == 1) { ;; store dict
+
+        cell dict = in_msg_body~load_dict();
+        save_data(dict);
+        ;;set_data(begin_cell().store_dict(in_msg_body~load_dict()).end_cell());
+
+        return();
+
+    }
+        
+    if(op == 2) { ;; transfer funds to addrs in dict
+
+        int key = in_msg_body~load_uint(64);
+
+        cell d = load_data();
+
+        (slice v, int f) = idict_get?(d, 64, key);
+
+        slice addr = v~load_msg_addr();
+        int amount = v~load_uint(64);
+
+
+
+        messages::send_empty(amount, addr, NORMAL);
+
+        return();
+
+    }
+
+    if(op == 3) { ;; transfer funds to addrs in dict
+
+        int key = in_msg_body~load_uint(64);
+
+        cell d = load_data();
+
+        (int k, slice v, int f) = idict_get_min?(d, 64);
+
+        while (f) {
+
+            (v, f) = idict_get?(d, 64, k);
+            slice addr = v~load_msg_addr();
+            int amount = v~load_uint(64);
+            messages::send_empty(amount, addr, NORMAL);
+
+        }
+
+        return();
+
+    }
+
+    throw(error::unknown_op);
+
+}
+
+(cell) get_dict () method_id {
+
+    return load_data();
+
+}
+
+(int, (int, int), int, int) get_value_from_dict (int idx) method_id {
+
+    cell d = load_data();
+
+    (slice value, int f) = idict_get?(d, 64, idx);
+
+    return (
+        idx,
+        parse_std_addr(value~load_msg_addr()),
+        value~load_uint(64),
+        f
+    );
+
+}
